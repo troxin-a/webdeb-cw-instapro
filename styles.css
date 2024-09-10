@@ -33,9 +33,16 @@
   cursor: pointer;
 }
 
-.logout-button {
+.logout-button .back-button {
   width: 130px;
   text-align: right;
+}
+
+.menu-right {
+  display: flex;
+  justify-content: end;
+  min-width: 130px;
+  gap: 50px;
 }
 
 .posts {
