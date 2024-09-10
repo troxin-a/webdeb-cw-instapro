@@ -108,3 +108,31 @@ export function getPostsUser({ token, userId }) {
       return data.posts;
     });
 }
+
+export function likePost({ token, postId }) {
+  return fetch(postsHost + `/${postId}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {    
+    if (response.status === 401) {
+      throw new Error("Не авторизован");
+    }
+    return response.json();
+  });
+}
+
+export function dislikePost({ token, postId }) {
+  return fetch(postsHost + `/${postId}/dislike`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then((response) => {    
+    if (response.status === 401) {
+      throw new Error("Не авторизован");
+    }
+    return response.json();
+  });
+}
