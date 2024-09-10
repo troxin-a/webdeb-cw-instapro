@@ -5,6 +5,22 @@ import { likePost, dislikePost } from "../api.js";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 
+// Экранирование текста
+const textScreen = (text) => {
+  let newText = text
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .trim()
+
+  // Чистит от лишних переносов
+  while (newText.includes("\n\n")) {
+      newText = newText.replace("\n\n", "\n")
+  }
+
+  return newText
+}
+
 export function renderPostsPageComponent({ appEl, page }) {
   const appHtml = `
               <div class="page-container">
@@ -57,7 +73,7 @@ export function renderPostsPageComponent({ appEl, page }) {
       <li class="post">
         <div class="post-header" data-user-id=${post.user.id}>
             <img src=${post.user.imageUrl} class="post-header__user-image">
-            <p class="post-header__user-name">${post.user.name}</p>
+            <p class="post-header__user-name">${textScreen(post.user.name)}</p>
         </div>
         <div class="post-image-container">
           <img class="post-image" src=${post.imageUrl}>
@@ -66,8 +82,8 @@ export function renderPostsPageComponent({ appEl, page }) {
           ${fillLikes(post)}
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${textScreen(post.user.name)}</span>
+          ${textScreen(post.description)}
         </p>
         <p class="post-date">
           ${formatDistanceToNow(post.createdAt, {

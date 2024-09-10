@@ -5,7 +5,7 @@ export function renderHeaderComponent({ element, page }) {
   element.innerHTML = `
   <div class="page-header">      
     <h1 class="logo">instapro</h1>  
-      <button class="header-button add-or-login-button">
+      <button class="header-button add-button">
         <div title="Добавить пост" class="add-post-sign"></div>
       </button>
     <div class="menu-right">
@@ -17,7 +17,7 @@ export function renderHeaderComponent({ element, page }) {
     ${
       user
         ? `<button title="${user.name}" class="header-button logout-button">Выйти</button>`
-        : `<button class="header-button add-or-login-button">
+        : `<button class="header-button login-button">
               Войти
             </button>`
     }
@@ -25,15 +25,17 @@ export function renderHeaderComponent({ element, page }) {
   </div>
   `;
 
-  element
-    .querySelector(".add-or-login-button")
-    .addEventListener("click", () => {
-      if (user) {
-        goToPage(ADD_POSTS_PAGE);
-      } else {
-        goToPage(AUTH_PAGE);
-      }
-    });
+  element.querySelector(".add-button").addEventListener("click", () => {
+    if (user) {
+      goToPage(ADD_POSTS_PAGE);
+    } else {
+      goToPage(AUTH_PAGE);
+    }
+  });
+
+  element.querySelector(".login-button")?.addEventListener("click", () => {
+    goToPage(AUTH_PAGE);
+  });
 
   element.querySelector(".logo").addEventListener("click", () => {
     goToPage(POSTS_PAGE);
