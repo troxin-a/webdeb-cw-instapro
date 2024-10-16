@@ -1,12 +1,27 @@
-import { USER_POSTS_PAGE } from "../routes.js";
+import { USER_POSTS_PAGE, AUTH_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage, getToken } from "../index.js";
 import { likePost, dislikePost } from "../api.js";
+import { formatDistanceToNow } from "date-fns";
+import { ru } from "date-fns/locale";
+
+// Экранирование текста
+const textScreen = (text) => {
+  let newText = text
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .trim()
+
+  // Чистит от лишних переносов
+  while (newText.includes("\n\n")) {
+      newText = newText.replace("\n\n", "\n")
+  }
+
+  return newText
+}
 
 export function renderPostsPageComponent({ appEl, page }) {
-  // TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
-  // можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
-
   const appHtml = `
               <div class="page-container">
                 <div class="header-container"></div>
@@ -40,7 +55,7 @@ export function renderPostsPageComponent({ appEl, page }) {
       <button data-post-id=${post.id} class="like-button">
         <img src="
         ${
-          post.isLiked
+          post.isLiked && getToken()
             ? `./assets/images/like-active.svg`
             : `./assets/images/like-not-active.svg`
         }        
@@ -58,7 +73,7 @@ export function renderPostsPageComponent({ appEl, page }) {
       <li class="post">
         <div class="post-header" data-user-id=${post.user.id}>
             <img src=${post.user.imageUrl} class="post-header__user-image">
-            <p class="post-header__user-name">${post.user.name}</p>
+            <p class="post-header__user-name">${textScreen(post.user.name)}</p>
         </div>
         <div class="post-image-container">
           <img class="post-image" src=${post.imageUrl}>
@@ -67,11 +82,15 @@ export function renderPostsPageComponent({ appEl, page }) {
           ${fillLikes(post)}
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${textScreen(post.user.name)}</span>
+          ${textScreen(post.description)}
         </p>
         <p class="post-date">
-          ${post.createdAt}
+          ${formatDistanceToNow(post.createdAt, {
+            includeSeconds: true,
+            addSuffix: true,
+            locale: ru,
+          })}
         </p>
       </li>`;
   }
@@ -85,9 +104,13 @@ export function renderPostsPageComponent({ appEl, page }) {
   }
 
   const onLikeClick = (likeEl) => {
+    if (!getToken()) {
+      return goToPage(AUTH_PAGE);
+    }
+
     likeEl.classList.add("-loading-like");
     const postId = likeEl.dataset.postId;
-    const postIndex = posts.findIndex(post => post.id === postId);
+    const postIndex = posts.findIndex((post) => post.id === postId);
 
     const renderLikeBox = (post) => {
       posts[postIndex] = post;
@@ -106,11 +129,9 @@ export function renderPostsPageComponent({ appEl, page }) {
         },
       );
     } else {
-      likePost({ token: getToken(), postId: postId }).then(
-        (responseData) => {
-          renderLikeBox(responseData.post);
-        },
-      );
+      likePost({ token: getToken(), postId: postId }).then((responseData) => {
+        renderLikeBox(responseData.post);
+      });
     }
   };
 
