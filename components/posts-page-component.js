@@ -2,7 +2,7 @@ import { USER_POSTS_PAGE } from "../routes.js"
 import { renderHeaderComponent } from "./header-component.js"
 import { posts, goToPage } from "../index.js"
 
-export function renderPostsPageComponent({ appEl }) {
+export function renderPostsPageComponent({ appEl, page }) {
     // TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
     // можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
 
@@ -17,7 +17,7 @@ export function renderPostsPageComponent({ appEl }) {
     appEl.innerHTML = appHtml
 
     renderHeaderComponent({
-        element: document.querySelector(".header-container"),
+        element: document.querySelector(".header-container"), page
     })
 
     const postsEl = document.getElementById("posts")
